@@ -16,13 +16,16 @@
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@prisma/client": "^6.1.0",
+    "@vitejs/plugin-react": "^4.3.4",
     "dayjs": "^1.11.13",
     "isomorphic-dompurify": "^2.19.0",
-    "next": "14.2.17",
+    "next": "^15.1.4",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "vite": "^6.0.7"
   },
   "devDependencies": {
+    "@types/next": "^8.0.7",
     "@types/node": "^20.17.12",
     "@types/react": "^18",
     "@types/react-dom": "^18",

@@ -1,4 +1,5 @@
 export type PostApiResponse = {
+  starredAt: null;
   id: string;
   title: string;
   content: string;

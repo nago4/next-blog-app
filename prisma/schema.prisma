@@ -1,10 +1,3 @@
-// このファイルを更新したら...
-// 0. `npm run dev` や `npx prisma studio` を停止
-// 1. dev.db を削除
-// 2. npx prisma db push
-// 3. npx prisma generate
-// 4. npx prisma db seed
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -22,6 +15,7 @@ model Post {
   coverImageURL  String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  starredAt      DateTime? // 星を付けた日時を追加
   categories     PostCategory[]
 }
 
@@ -30,7 +24,7 @@ model Category {
   id         String @id @default(uuid())
   name       String @unique
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  updatedAt  DateTime @default(now())
   posts      PostCategory[]
 }
 
@@ -40,7 +34,7 @@ model PostCategory {
   postId      String
   categoryId  String
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @default(now())
   category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
 }
