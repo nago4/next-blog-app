@@ -1,1 +1,1 @@
-{"version":1,"functions":{"/api/categories":{},"/api/admin/posts":{},"/api/admin/categories/[id]":{},"/api/admin/posts/[id]":{},"/api/posts":{},"/api/admin/categories":{},"/api/posts/[id]":{}}}
+{"version":1,"functions":{"/api/categories":{},"/api/admin/posts":{},"/api/admin/categories/[id]":{},"/api/admin/posts/[id]":{},"/api/admin/categories":{},"/api/posts/[id]":{},"/api/posts":{}}}
