@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { twMerge } from "tailwind-merge";
+import Image from "next/image";
 
 // カテゴリをフェッチしたときのレスポンスのデータ型
 type RawApiCategoryResponse = {
@@ -40,6 +41,7 @@ const Page: React.FC = () => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fetchErrorMsg, setFetchErrorMsg] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const [newTitle, setNewTitle] = useState("");
   const [newContent, setNewContent] = useState("");
@@ -172,6 +174,51 @@ const Page: React.FC = () => {
     setNewCoverImageURL(e.target.value);
   };
 
+  // 投稿記事の削除処理
+  const handleDelete = async () => {
+    if (!confirm("本当にこの投稿を削除しますか？")) return;
+
+    try {
+      const requestUrl = `/api/admin/posts/${id}`;
+      const res = await fetch(requestUrl, {
+        method: "DELETE",
+        cache: "no-store",
+      });
+
+      if (!res.ok) {
+        throw new Error(`${res.status}: ${res.statusText}`);
+      }
+
+      router.push("/");
+    } catch (error) {
+      const errorMsg =
+        error instanceof Error
+          ? `投稿記事の削除に失敗しました: ${error.message}`
+          : `予期せぬエラーが発生しました ${error}`;
+      console.error(errorMsg);
+      window.alert(errorMsg);
+    }
+  };
+
+  // フォームのリセット処理
+  const handleReset = () => {
+    if (!rawApiPostResponse) return;
+
+    setNewTitle(rawApiPostResponse.title);
+    setNewContent(rawApiPostResponse.content);
+    setNewCoverImageURL(rawApiPostResponse.coverImageURL);
+
+    const selectedIds = new Set(
+      rawApiPostResponse.categories.map((c) => c.category.id)
+    );
+    setCheckableCategories(
+      checkableCategories!.map((category) => ({
+        ...category,
+        isSelect: selectedIds.has(category.id),
+      }))
+    );
+  };
+
   // フォームの送信処理
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); // この処理をしないとページがリロードされるので注意
@@ -203,14 +250,14 @@ const Page: React.FC = () => {
         throw new Error(`${res.status}: ${res.statusText}`); // -> catch節に移動
       }
 
-      // トップページに遷移
+      // 成功メッセージを表示
+      setSuccessMsg("投稿記事が更新されました");
       setIsSubmitting(false);
-      router.push("/");
     } catch (error) {
       const errorMsg =
         error instanceof Error
-          ? `投稿記事のPOSTリクエストに失敗しました\n${error.message}`
-          : `予期せぬエラーが発生しました\n${error}`;
+          ? `投稿記事の更新に失敗しました: ${error.message}`
+          : `予期せぬエラーが発生しました: ${error}`;
       console.error(errorMsg);
       window.alert(errorMsg);
       setIsSubmitting(false);
@@ -243,6 +290,12 @@ const Page: React.FC = () => {
             />
             <div className="flex items-center text-gray-500">処理中...</div>
           </div>
+        </div>
+      )}
+
+      {successMsg && (
+        <div className="mb-4 rounded bg-green-100 p-4 text-green-700">
+          {successMsg}
         </div>
       )}
 
@@ -295,23 +348,36 @@ const Page: React.FC = () => {
             placeholder="カバーイメージのURLを記入してください"
             required
           />
+          {newCoverImageURL && (
+            <div className="mt-4">
+              <Image
+                src={newCoverImageURL}
+                alt="Cover Image"
+                width={500}
+                height={300}
+                className="rounded"
+              />
+            </div>
+          )}
         </div>
 
         <div className="space-y-1">
           <div className="font-bold">タグ</div>
-          <div className="flex flex-wrap gap-x-3.5">
+          <div className="flex flex-wrap gap-2">
             {checkableCategories!.length > 0 ? (
               checkableCategories!.map((c) => (
-                <label key={c.id} className="flex space-x-1">
-                  <input
-                    id={c.id}
-                    type="checkbox"
-                    checked={c.isSelect}
-                    className="mt-0.5 cursor-pointer"
-                    onChange={() => switchCategoryState(c.id)}
-                  />
-                  <span className="cursor-pointer">{c.name}</span>
-                </label>
+                <span
+                  key={c.id}
+                  className={twMerge(
+                    "cursor-pointer rounded-full px-3 py-1 text-sm font-semibold",
+                    c.isSelect
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-200 text-gray-700"
+                  )}
+                  onClick={() => switchCategoryState(c.id)}
+                >
+                  {c.name}
+                </span>
               ))
             ) : (
               <div>選択可能なカテゴリが存在しません。</div>
@@ -320,6 +386,14 @@ const Page: React.FC = () => {
         </div>
 
         <div className="flex justify-end space-x-2">
+          <button
+            type="button"
+            onClick={handleReset}
+            className="rounded-md bg-gray-500 px-5 py-1 font-bold text-white hover:bg-gray-600"
+          >
+            リセット
+          </button>
+
           <button
             type="submit"
             className={twMerge(
@@ -338,7 +412,7 @@ const Page: React.FC = () => {
               "rounded-md px-5 py-1 font-bold",
               "bg-red-500 text-white hover:bg-red-600"
             )}
-            // onClick={handleDelete}
+            onClick={handleDelete}
           >
             削除
           </button>

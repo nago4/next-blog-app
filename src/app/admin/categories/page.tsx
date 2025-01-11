@@ -19,6 +19,8 @@ const Page: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fetchErrorMsg, setFetchErrorMsg] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   // カテゴリ配列 (State)。取得中と取得失敗時は null、既存カテゴリが0個なら []
   const [categories, setCategories] = useState<Category[] | null>(null);
@@ -107,6 +109,20 @@ const Page: React.FC = () => {
     }
   };
 
+  // カテゴリの検索
+  const filteredCategories = categories?.filter((category) =>
+    category.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // カテゴリの並び替え
+  const sortedCategories = filteredCategories?.sort((a, b) => {
+    if (sortOrder === "asc") {
+      return a.name.localeCompare(b.name);
+    } else {
+      return b.name.localeCompare(a.name);
+    }
+  });
+
   // カテゴリをウェブAPIから取得することに失敗したときの画面
   if (!categories) {
     return <div className="text-red-500">{fetchErrorMsg}</div>;
@@ -117,7 +133,30 @@ const Page: React.FC = () => {
     <main>
       <div className="text-2xl font-bold">カテゴリの管理</div>
 
-      <div className="mb-3 flex items-end justify-end">
+      <div className="mb-3 flex items-end justify-between">
+        <div className="flex space-x-2">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="カテゴリを検索"
+            className="rounded-md border-2 px-2 py-1"
+          />
+          <button
+            type="button"
+            onClick={() =>
+              setSortOrder((prevOrder) =>
+                prevOrder === "asc" ? "desc" : "asc"
+              )
+            }
+            className={twMerge(
+              "rounded-md px-5 py-1 font-bold",
+              "bg-gray-500 text-white hover:bg-gray-600"
+            )}
+          >
+            {sortOrder === "asc" ? "降順" : "昇順"}
+          </button>
+        </div>
         <Link href="/admin/categories/new">
           <button
             type="submit"
@@ -132,14 +171,14 @@ const Page: React.FC = () => {
         </Link>
       </div>
 
-      {categories.length === 0 ? (
+      {sortedCategories?.length === 0 ? (
         <div className="text-gray-500">
           （カテゴリは1個も作成されていません）
         </div>
       ) : (
         <div>
           <div className="space-y-3">
-            {categories.map((category) => (
+            {sortedCategories?.map((category) => (
               <div
                 key={category.id}
                 className={twMerge(
