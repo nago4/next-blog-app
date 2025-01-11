@@ -2,11 +2,15 @@
   "name": "next-blog-app",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://nago4.github.io/next-blog-app",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
@@ -16,11 +20,13 @@
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@prisma/client": "^6.1.0",
+    "@vitejs/plugin-react": "^4.3.4",
     "dayjs": "^1.11.13",
     "isomorphic-dompurify": "^2.19.0",
     "next": "14.2.17",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "vite": "^6.0.7"
   },
   "devDependencies": {
     "@types/node": "^20.17.12",
