@@ -180,19 +180,19 @@ const AdminPostsPage: React.FC = () => {
 
       <div className="mt-4 flex justify-center space-x-2">
         {Array.from(
-          { length: Math.ceil(filteredPosts.length / postsPerPage) },
+          { length: Math.ceil(filteredPosts.length / postsPerPage) - 1 },
           (_, i) => (
             <button
-              key={i + 1}
-              onClick={() => handlePageChange(i + 1)}
+              key={i + 2}
+              onClick={() => handlePageChange(i + 2)}
               className={twMerge(
                 "rounded px-4 py-2",
-                currentPage === i + 1
+                currentPage === i + 2
                   ? "bg-blue-500 text-white"
                   : "bg-gray-200 text-gray-700 hover:bg-gray-300"
               )}
             >
-              {i + 1}
+              {i + 2}
             </button>
           )
         )}
