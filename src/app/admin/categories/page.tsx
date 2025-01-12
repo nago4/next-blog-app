@@ -131,7 +131,26 @@ const Page: React.FC = () => {
   // カテゴリ取得完了後の画面
   return (
     <main>
-      <div className="text-2xl font-bold">カテゴリの管理</div>
+      <div className="mb-4 flex items-center justify-between">
+        <div className="text-2xl font-bold">
+          カテゴリの管理
+          <span className="ml-2 text-sm text-gray-500">
+            ({categories.length}件)
+          </span>
+        </div>
+        <Link href="/admin/categories/new">
+          <button
+            type="submit"
+            className={twMerge(
+              "rounded-md px-5 py-1 font-bold",
+              "bg-blue-500 text-white hover:bg-blue-600",
+              "disabled:cursor-not-allowed disabled:opacity-50"
+            )}
+          >
+            カテゴリの新規作成
+          </button>
+        </Link>
+      </div>
 
       <div className="mb-3 flex items-end justify-between">
         <div className="flex space-x-2">
@@ -157,18 +176,6 @@ const Page: React.FC = () => {
             {sortOrder === "asc" ? "降順" : "昇順"}
           </button>
         </div>
-        <Link href="/admin/categories/new">
-          <button
-            type="submit"
-            className={twMerge(
-              "rounded-md px-5 py-1 font-bold",
-              "bg-blue-500 text-white hover:bg-blue-600",
-              "disabled:cursor-not-allowed disabled:opacity-50"
-            )}
-          >
-            カテゴリの新規作成
-          </button>
-        </Link>
       </div>
 
       {sortedCategories?.length === 0 ? (

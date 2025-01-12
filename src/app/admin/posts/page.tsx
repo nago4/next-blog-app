@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { twMerge } from "tailwind-merge";
+import Link from "next/link";
 
 // 投稿記事をフェッチしたときのレスポンスのデータ型
 type PostApiResponse = {
@@ -102,7 +103,7 @@ const AdminPostsPage: React.FC = () => {
       const errorMsg =
         error instanceof Error
           ? `投稿記事の削除に失敗しました: ${error.message}`
-          : `予期せぬエラーが発生しました ${error}`;
+          : `予期せぬエラーが発生しました: ${error}`;
       console.error(errorMsg);
       window.alert(errorMsg);
     }
@@ -123,7 +124,24 @@ const AdminPostsPage: React.FC = () => {
 
   return (
     <main className="container mx-auto p-4">
-      <div className="mb-4 text-2xl font-bold">投稿記事の管理</div>
+      <div className="mb-4 flex items-center justify-between">
+        <div className="text-2xl font-bold">
+          投稿記事の管理
+          <span className="ml-2 text-sm text-gray-500">({posts.length}件)</span>
+        </div>
+        <Link href="/admin/posts/new">
+          <button
+            type="submit"
+            className={twMerge(
+              "rounded-md px-5 py-1 font-bold",
+              "bg-blue-500 text-white hover:bg-blue-600",
+              "disabled:cursor-not-allowed disabled:opacity-50"
+            )}
+          >
+            新しい投稿記事を作成
+          </button>
+        </Link>
+      </div>
 
       <div className="mb-4">
         <input
