@@ -353,8 +353,8 @@ const Page: React.FC = () => {
               <Image
                 src={newCoverImageURL}
                 alt="Cover Image"
-                width={500}
-                height={300}
+                width={200}
+                height={120}
                 className="rounded"
               />
             </div>
