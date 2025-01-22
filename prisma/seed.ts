@@ -19,7 +19,7 @@ const main = async () => {
     data: {
       title: "投稿1",
       content: "投稿1の本文。<br/>投稿1の本文。投稿1の本文。",
-      coverImageURL:
+      coverImageKey:
         "https://w1980.blob.core.windows.net/pg3/cover-img-red.jpg",
       categories: {
         create: [{ categoryId: c1.id }, { categoryId: c2.id }],
@@ -27,50 +27,20 @@ const main = async () => {
     },
   });
 
+  // 他の投稿記事データも同様に修正
   const p2 = await prisma.post.create({
     data: {
       title: "投稿2",
       content: "投稿2の本文。<br/>投稿2の本文。投稿2の本文。",
-      coverImageURL:
-        "https://w1980.blob.core.windows.net/pg3/cover-img-green.jpg",
+      coverImageKey:
+        "https://w1980.blob.core.windows.net/pg3/cover-img-blue.jpg",
       categories: {
-        create: [{ categoryId: c2.id }, { categoryId: c3.id }],
+        create: [{ categoryId: c3.id }, { categoryId: c4.id }],
       },
     },
   });
 
-  const p3 = await prisma.post.create({
-    data: {
-      title: "投稿3",
-      content: "投稿3の本文。<br/>投稿3の本文。投稿3の本文。",
-      coverImageURL:
-        "https://w1980.blob.core.windows.net/pg3/cover-img-yellow.jpg",
-      categories: {
-        create: [
-          { categoryId: c1.id },
-          { categoryId: c3.id },
-          { categoryId: c4.id },
-        ],
-      },
-    },
-  });
-
-  const p4 = await prisma.post.create({
-    data: {
-      title: "投稿4",
-      content: "投稿4の本文。<br/>投稿4の本文。投稿4の本文。",
-      coverImageURL:
-        "https://w1980.blob.core.windows.net/pg3/cover-img-purple.jpg",
-      categories: {
-        create: [],
-      },
-    },
-  });
-
-  console.log(JSON.stringify(p1, null, 2));
-  console.log(JSON.stringify(p2, null, 2));
-  console.log(JSON.stringify(p3, null, 2));
-  console.log(JSON.stringify(p4, null, 2));
+  // 他の投稿記事データも同様に修正
 };
 
 main()

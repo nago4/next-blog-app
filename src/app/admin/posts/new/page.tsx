@@ -127,7 +127,7 @@ const Page: React.FC = () => {
       const requestBody = {
         title: newTitle,
         content: newContent,
-        coverImageURL: newCoverImageURL,
+        coverImageKey: newCoverImageURL,
         categoryIds: checkableCategories
           ? checkableCategories.filter((c) => c.isSelect).map((c) => c.id)
           : [],
@@ -139,7 +139,7 @@ const Page: React.FC = () => {
         cache: "no-store",
         headers: {
           "Content-Type": "application/json",
-          Authorization: token,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(requestBody),
       });
@@ -227,13 +227,13 @@ const Page: React.FC = () => {
         </div>
 
         <div className="space-y-1">
-          <label htmlFor="coverImageURL" className="block font-bold">
+          <label htmlFor="coverImageKey" className="block font-bold">
             カバーイメージ (URL)
           </label>
           <input
             type="url"
-            id="coverImageURL"
-            name="coverImageURL"
+            id="coverImageKey"
+            name="coverImageKey"
             className="w-full rounded-md border-2 px-2 py-1"
             value={newCoverImageURL}
             onChange={updateNewCoverImageURL}

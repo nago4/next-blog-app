@@ -14,7 +14,7 @@ model Post {
   id             String @id @default(uuid())
   title          String
   content        String
-  coverImageURL  String
+  coverImageKey  String // 変更
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   starredAt      DateTime? // 星を付けた日時を追加
