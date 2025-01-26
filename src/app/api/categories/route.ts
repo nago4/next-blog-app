@@ -3,6 +3,7 @@ import { NextResponse, NextRequest } from "next/server";
 
 // [GET] /api/categories カテゴリ一覧の取得
 export const GET = async (req: NextRequest) => {
+  console.log("GET /api/categories");
   try {
     const categories = await prisma.category.findMany({
       orderBy: {

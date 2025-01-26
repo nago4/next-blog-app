@@ -11,7 +11,7 @@ type PostApiResponse = {
   id: string;
   title: string;
   content: string;
-  coverImageKey: string;
+  coverImageURL: string;
   createdAt: string;
   categories: {
     category: {

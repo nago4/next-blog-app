@@ -39,7 +39,7 @@ const Page: React.FC = () => {
           title: postApiResponse.title,
           content: postApiResponse.content,
           coverImage: {
-            url: postApiResponse.coverImageKey || null,
+            url: postApiResponse.coverImageURL || null,
             width: 1000,
             height: 1000,
           },
@@ -79,7 +79,7 @@ const Page: React.FC = () => {
               title: relatedPost.title,
               content: relatedPost.content,
               coverImage: {
-                url: relatedPost.coverImageKey || null,
+                url: relatedPost.coverImageURL || null,
                 width: 1000,
                 height: 1000,
               },
