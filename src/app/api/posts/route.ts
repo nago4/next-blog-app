@@ -1,15 +1,8 @@
 import prisma from "@/lib/prisma";
 import { NextResponse, NextRequest } from "next/server";
-import { Post } from "@prisma/client";
 
 export const GET = async (req: NextRequest) => {
   try {
-    // const posts: Post[] = await prisma.post.findMany({
-    //   orderBy: {
-    //     createdAt: "desc",
-    //   },
-    // });
-
     const posts = await prisma.post.findMany({
       select: {
         id: true,

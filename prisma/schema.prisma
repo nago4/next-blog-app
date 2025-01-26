@@ -3,21 +3,18 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
-        
 
 // 投稿記事テーブル
 model Post {
   id             String @id @default(uuid())
   title          String
   content        String
-  coverImageKey  String // 変更
+  coverImageURL  String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  starredAt      DateTime? // 星を付けた日時を追加
   categories     PostCategory[]
 }
 
@@ -26,7 +23,7 @@ model Category {
   id         String @id @default(uuid())
   name       String @unique
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
   posts      PostCategory[]
 }
 
@@ -36,7 +33,7 @@ model PostCategory {
   postId      String
   categoryId  String
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
 }

@@ -1,6 +1,4 @@
 export type PostApiResponse = {
-  coverImageKey: null;
-  starredAt: null;
   id: string;
   title: string;
   content: string;

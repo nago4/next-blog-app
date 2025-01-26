@@ -10,19 +10,6 @@ type RequestBody = {
   coverImageKey: string;
   categoryIds: string[];
 };
-
-// /* POSTリクエストのボディの設定例
-// {
-//   "title": "投稿X",
-//   "content": "投稿Xの本文。<br/>投稿Xの本文。投稿Xの本文。",
-//   "coverImageURL": "https://....",
-//   "categoryIds": [
-//     "412b3199-5ae1-45eb-a224-8f53ba3790d0",
-//     "db450dc7-a73b-4311-8b70-3af652efd144"
-//   ]
-// }
-// */
-
 export const POST = async (req: NextRequest) => {
   const token = req.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
   const { data, error } = await supabase.auth.getUser(token);
