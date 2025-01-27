@@ -1,112 +1,187 @@
-/* eslint-disable tailwindcss/no-custom-classname */
 "use client";
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
-
-import type { Post } from "@/app/_types/Post";
-import type { PostApiResponse } from "@/app/_types/PostApiResponse";
+import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { twMerge } from "tailwind-merge";
+import { useAuth } from "@/app/_hooks/useAuth";
 import Image from "next/image";
-
 import DOMPurify from "isomorphic-dompurify";
 
-// 投稿記事の詳細表示 /posts/[id]
+// カテゴリをフェッチしたときのレスポンスのデータ型
+type CategoryApiResponse = {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+// 投稿記事のカテゴリ選択用のデータ型
+type SelectableCategory = {
+  id: string;
+  name: string;
+  isSelect: boolean;
+};
+
+// 投稿記事のデータ型
+type Post = {
+  id: string;
+  title: string;
+  content: string;
+  coverImage: {
+    url: string | null;
+    width: number;
+    height: number;
+  };
+  createdAt: string;
+  starredAt: string | null;
+  categories: {
+    id: string;
+    name: string;
+  }[];
+};
+
+// 投稿記事の新規作成のページ
 const Page: React.FC = () => {
-  const [post, setPost] = useState<Post | null>(null);
-  const [relatedPosts, setRelatedPosts] = useState<Post[]>([]);
+  const { token } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fetchErrorMsg, setFetchErrorMsg] = useState<string | null>(null);
 
-  // 動的ルートパラメータから id を取得 （URL:/posts/[id]）
-  const { id } = useParams() as { id: string };
+  const [newTitle, setNewTitle] = useState("");
+  const [newContent, setNewContent] = useState("");
+  const [newCoverImageURL, setNewCoverImageURL] = useState("");
 
+  const router = useRouter();
+
+  // カテゴリ配列 (State)。取得中と取得失敗時は null、既存カテゴリが0個なら []
+  const [checkableCategories, setCheckableCategories] = useState<
+    SelectableCategory[] | null
+  >(null);
+
+  // コンポーネントがマウントされたとき (初回レンダリングのとき) に1回だけ実行
   useEffect(() => {
-    const fetchPost = async () => {
-      setIsLoading(true);
+    // ウェブAPI (/api/categories) からカテゴリの一覧をフェッチする関数の定義
+    const fetchCategories = async () => {
       try {
-        const requestUrl = `/api/posts/${id}`;
-        const response = await fetch(requestUrl, {
+        setIsLoading(true);
+
+        // フェッチ処理の本体
+        const requestUrl = "/api/categories";
+        const res = await fetch(requestUrl, {
           method: "GET",
           cache: "no-store",
         });
-        if (!response.ok) {
-          throw new Error("データの取得に失敗しました");
-        }
-        const postApiResponse: PostApiResponse = await response.json();
-        setPost({
-          id: postApiResponse.id,
-          title: postApiResponse.title,
-          content: postApiResponse.content,
-          coverImage: {
-            url: postApiResponse.coverImageURL || null,
-            width: 1000,
-            height: 1000,
-          },
-          createdAt: postApiResponse.createdAt,
-          starredAt: null, // or provide the appropriate value
-          categories: postApiResponse.categories.map((category) => ({
-            id: category.category.id,
-            name: category.category.name,
-          })),
-        });
 
-        // 関連する投稿を取得
-        const categoryIds = postApiResponse.categories.map(
-          (category) => category.category.id
-        );
-        const relatedPostsResponse = await fetch(
-          `/api/posts?categories=${categoryIds.join(",")}`,
-          {
-            method: "GET",
-            cache: "no-store",
-          }
-        );
-        if (!relatedPostsResponse.ok) {
-          throw new Error("関連する投稿の取得に失敗しました");
+        // レスポンスのステータスコードが200以外の場合 (カテゴリのフェッチに失敗した場合)
+        if (!res.ok) {
+          setCheckableCategories(null);
+          throw new Error(`${res.status}: ${res.statusText}`); // -> catch節に移動
         }
-        const relatedPostsApiResponse: PostApiResponse[] =
-          await relatedPostsResponse.json();
-        setRelatedPosts(
-          relatedPostsApiResponse
-            .filter((relatedPost) =>
-              relatedPost.categories.some((category) =>
-                categoryIds.includes(category.category.id)
-              )
-            )
-            .map((relatedPost) => ({
-              id: relatedPost.id,
-              title: relatedPost.title,
-              content: relatedPost.content,
-              coverImage: {
-                url: relatedPost.coverImageURL || null,
-                width: 1000,
-                height: 1000,
-              },
-              createdAt: relatedPost.createdAt,
-              starredAt: null, // or provide the appropriate value
-              categories: relatedPost.categories.map((category) => ({
-                id: category.category.id,
-                name: category.category.name,
-              })),
-            }))
+
+        // レスポンスのボディをJSONとして読み取りカテゴリ配列 (State) にセット
+        const apiResBody = (await res.json()) as CategoryApiResponse[];
+        setCheckableCategories(
+          apiResBody.map((body) => ({
+            id: body.id,
+            name: body.name,
+            isSelect: false,
+          }))
         );
-      } catch (e) {
-        setFetchError(
-          e instanceof Error ? e.message : "予期せぬエラーが発生しました"
-        );
+      } catch (error) {
+        const errorMsg =
+          error instanceof Error
+            ? `カテゴリの一覧のフェッチに失敗しました: ${error.message}`
+            : `予期せぬエラーが発生しました ${error}`;
+        console.error(errorMsg);
+        setFetchErrorMsg(errorMsg);
       } finally {
+        // 成功した場合も失敗した場合もローディング状態を解除
         setIsLoading(false);
       }
     };
-    fetchPost();
-  }, [id]);
 
-  if (fetchError) {
-    return <div>{fetchError}</div>;
-  }
+    fetchCategories();
+  }, []);
 
-  // 投稿データの取得中は「Loading...」を表示
+  // チェックボックスの状態 (State) を更新する関数
+  const switchCategoryState = (categoryId: string) => {
+    if (!checkableCategories) return;
+
+    setCheckableCategories(
+      checkableCategories.map((category) =>
+        category.id === categoryId
+          ? { ...category, isSelect: !category.isSelect }
+          : category
+      )
+    );
+  };
+
+  const updateNewTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // ここにタイトルのバリデーション処理を追加する
+    setNewTitle(e.target.value);
+  };
+
+  const updateNewContent = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    // ここに本文のバリデーション処理を追加する
+    setNewContent(e.target.value);
+  };
+
+  const updateNewCoverImageURL = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // ここにカバーイメージURLのバリデーション処理を追加する
+    setNewCoverImageURL(e.target.value);
+  };
+
+  // フォームの送信処理
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault(); // この処理をしないとページがリロードされるので注意
+
+    setIsSubmitting(true);
+
+    // ▼▼ 追加 ウェブAPI (/api/admin/posts) にPOSTリクエストを送信する処理
+    try {
+      if (!token) {
+        window.alert("予期せぬ動作：トークンが取得できません。");
+        return;
+      }
+      const requestBody = {
+        title: newTitle,
+        content: newContent,
+        coverImageKey: newCoverImageURL,
+        categoryIds: checkableCategories
+          ? checkableCategories.filter((c) => c.isSelect).map((c) => c.id)
+          : [],
+      };
+      const requestUrl = "/api/admin/posts";
+      console.log(`${requestUrl} => ${JSON.stringify(requestBody, null, 2)}`);
+      const res = await fetch(requestUrl, {
+        method: "POST",
+        cache: "no-store",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!res.ok) {
+        throw new Error(`${res.status}: ${res.statusText}`); // -> catch節に移動
+      }
+
+      const postResponse = await res.json();
+      setIsSubmitting(false);
+      router.push(`/posts/${postResponse.id}`); // 投稿記事の詳細ページに移動
+    } catch (error) {
+      const errorMsg =
+        error instanceof Error
+          ? `投稿記事のPOSTリクエストに失敗しました\n${error.message}`
+          : `予期せぬエラーが発生しました\n${error}`;
+      console.error(errorMsg);
+      window.alert(errorMsg);
+      setIsSubmitting(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="text-gray-500">
@@ -116,78 +191,113 @@ const Page: React.FC = () => {
     );
   }
 
-  // 投稿データが取得できなかったらエラーメッセージを表示
-  if (!post) {
-    return <div>指定idの投稿の取得に失敗しました。</div>;
+  if (!checkableCategories) {
+    return <div className="text-red-500">{fetchErrorMsg}</div>;
   }
 
-  // HTMLコンテンツのサニタイズ
-  const safeHTML = DOMPurify.sanitize(post.content, {
-    ALLOWED_TAGS: ["b", "strong", "i", "em", "u", "br"],
-  });
-
   return (
-    <main className="container mx-auto p-4">
-      <div className="mx-auto mb-8 max-w-4xl rounded-lg bg-white p-6 shadow-md">
-        <div className="mb-4 flex items-center">
-          <h1 className="text-3xl font-bold">{post.title}</h1>
-          <div className="ml-4 flex flex-wrap gap-2">
-            {post.categories.map((category) => (
-              <span
-                key={category.id}
-                className="rounded bg-blue-100 px-2.5 py-0.5 text-sm font-semibold text-blue-800"
-              >
-                {category.name}
-              </span>
-            ))}
+    <main>
+      <div className="mb-4 text-2xl font-bold">投稿記事の新規作成</div>
+
+      {isSubmitting && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="flex items-center rounded-lg bg-white px-8 py-4 shadow-lg">
+            <FontAwesomeIcon
+              icon={faSpinner}
+              className="mr-2 animate-spin text-gray-500"
+            />
+            <div className="flex items-center text-gray-500">処理中...</div>
           </div>
         </div>
-        {post.coverImage.url && (
-          <Image
-            src={post.coverImage.url}
-            alt="Example Image"
-            width={post.coverImage.width}
-            height={post.coverImage.height}
-            priority
-            className="mb-4 rounded-xl"
+      )}
+
+      <form
+        onSubmit={handleSubmit}
+        className={twMerge("space-y-4", isSubmitting && "opacity-50")}
+      >
+        <div className="space-y-1">
+          <label htmlFor="title" className="block font-bold">
+            タイトル
+          </label>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            className="w-full rounded-md border-2 px-2 py-1"
+            value={newTitle}
+            onChange={updateNewTitle}
+            placeholder="タイトルを記入してください"
+            required
           />
-        )}
-        <div
-          className="prose prose-lg mb-4 text-gray-700"
-          dangerouslySetInnerHTML={{ __html: safeHTML }}
-        />
-      </div>
-      <div className="mx-auto max-w-4xl rounded-lg bg-white p-6 text-sm shadow-md">
-        <h2 className="text-0.5lg mb-4 font-bold">関連する投稿</h2>
-        <ul className="list-inside list-disc">
-          {relatedPosts.map((relatedPost) => (
-            <li key={relatedPost.id} className="mb-2">
-              <a
-                href={`/posts/${relatedPost.id}`}
-                className="font-bold text-blue-500 hover:underline"
-              >
-                {relatedPost.title}
-              </a>
-              <div className="ml-2 inline-flex flex-wrap gap-2">
-                {relatedPost.categories.map((category) => (
-                  <span
-                    key={category.id}
-                    className={`rounded px-2.5 py-0.5 text-xs font-semibold ${
-                      post.categories.some(
-                        (postCategory) => postCategory.id === category.id
-                      )
-                        ? "border border-blue-500 bg-blue-100 text-blue-800"
-                        : "bg-gray-100 text-gray-800"
-                    }`}
-                  >
-                    {category.name}
-                  </span>
-                ))}
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
+        </div>
+
+        <div className="space-y-1">
+          <label htmlFor="content" className="block font-bold">
+            本文
+          </label>
+          <textarea
+            id="content"
+            name="content"
+            className="h-48 w-full rounded-md border-2 px-2 py-1"
+            value={newContent}
+            onChange={updateNewContent}
+            placeholder="本文を記入してください"
+            required
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label htmlFor="coverImageKey" className="block font-bold">
+            カバーイメージ (URL)
+          </label>
+          <input
+            type="url"
+            id="coverImageKey"
+            name="coverImageKey"
+            className="w-full rounded-md border-2 px-2 py-1"
+            value={newCoverImageURL}
+            onChange={updateNewCoverImageURL}
+            placeholder="カバーイメージのURLを記入してください"
+            required
+          />
+        </div>
+
+        <div className="space-y-1">
+          <div className="font-bold">タグ</div>
+          <div className="flex flex-wrap gap-x-3.5">
+            {checkableCategories.length > 0 ? (
+              checkableCategories.map((c) => (
+                <label key={c.id} className="flex space-x-1">
+                  <input
+                    id={c.id}
+                    type="checkbox"
+                    checked={c.isSelect}
+                    className="mt-0.5 cursor-pointer"
+                    onChange={() => switchCategoryState(c.id)}
+                  />
+                  <span className="cursor-pointer">{c.name}</span>
+                </label>
+              ))
+            ) : (
+              <div>選択可能なカテゴリが存在しません。</div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            className={twMerge(
+              "rounded-md px-5 py-1 font-bold",
+              "bg-indigo-500 text-white hover:bg-indigo-600",
+              "disabled:cursor-not-allowed"
+            )}
+            disabled={isSubmitting}
+          >
+            記事を投稿
+          </button>
+        </div>
+      </form>
     </main>
   );
 };
