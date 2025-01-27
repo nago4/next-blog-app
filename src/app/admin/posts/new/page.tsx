@@ -30,7 +30,6 @@ const Page: React.FC = () => {
   const [newTitle, setNewTitle] = useState("");
   const [newContent, setNewContent] = useState("");
   const [newCoverImageURL, setNewCoverImageURL] = useState("");
-  const [newCoverImageKey, setNewCoverImageKey] = useState("hoge"); // ◀ 追加
 
   const router = useRouter();
   const { token } = useAuth();
