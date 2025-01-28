@@ -1,12 +1,11 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import path from "path"; // ◀◀ 追加
+import path from "path";
 
-const repositoryName = "react-todo-app"; // ◀◀ 追加
+const repositoryName = "react-todo-app";
 
 export default defineConfig({
   plugins: [react()],
-  // ▼▼ 追加 ここから ▼▼
   base: process.env.NODE_ENV === "production" ? `/${repositoryName}/` : "/",
   build: {
     rollupOptions: {
@@ -16,7 +15,6 @@ export default defineConfig({
       },
     },
   },
-  // ▲▲ 追加 ここまで ▲▲
   server: {
     port: 3000,
     strictPort: false,
