@@ -35,7 +35,6 @@ const Page: React.FC = () => {
               height: 1000,
             },
             createdAt: rawPost.createdAt,
-            starredAt: null, // or provide the appropriate value
             categories: rawPost.categories.map((category) => ({
               id: category.category.id,
               name: category.category.name,
