@@ -28,21 +28,36 @@ const Header: React.FC = () => {
           )}
         >
           <div>
-            <Link href="/">
+            <Link href="/" className="flex items-center gap-x-2">
               <FontAwesomeIcon icon={faFish} className="mr-1" />
               AMGMs Blog
             </Link>
           </div>
-          <div className="flex gap-x-6">
+          <div className="flex gap-x-4">
             {/* ▼ 追加 */}
             {!isLoading &&
               (session ? (
-                <button onClick={logout}>Logout</button>
+                <button
+                  onClick={logout}
+                  className="rounded bg-red-500 px-4 py-2 hover:bg-red-600"
+                >
+                  Logout
+                </button>
               ) : (
-                <Link href="/login">Login</Link>
+                <Link
+                  href="/login"
+                  className="rounded bg-blue-500 px-4 py-2 hover:bg-blue-600"
+                >
+                  編集機能へ
+                </Link>
               ))}
             {/* ▲ 追加 */}
-            <Link href="/about">About</Link>
+            <Link
+              href="/about"
+              className="rounded bg-green-500 px-4 py-2 hover:bg-green-600"
+            >
+              ユーザー登録
+            </Link>
           </div>
         </div>
       </div>
