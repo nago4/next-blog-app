@@ -60,12 +60,38 @@ const Header: React.FC = () => {
             </Link>
             {!isLoading &&
               (session ? (
-                <button
-                  onClick={logout}
-                  className="block w-full rounded bg-red-500 px-4 py-2 hover:bg-red-600"
-                >
-                  Logout
-                </button>
+                <>
+                  <Link
+                    href="/admin/posts"
+                    className="block w-full rounded bg-blue-500 px-4 py-2 hover:bg-blue-600"
+                  >
+                    管理者用機能: 投稿一覧
+                  </Link>
+                  <Link
+                    href="/admin/posts/new"
+                    className="block w-full rounded bg-blue-500 px-4 py-2 hover:bg-blue-600"
+                  >
+                    管理者用機能: 新規投稿
+                  </Link>
+                  <Link
+                    href="/admin/categories"
+                    className="block w-full rounded bg-blue-500 px-4 py-2 hover:bg-blue-600"
+                  >
+                    管理者用機能: カテゴリー一覧
+                  </Link>
+                  <Link
+                    href="/admin/categories/new"
+                    className="block w-full rounded bg-blue-500 px-4 py-2 hover:bg-blue-600"
+                  >
+                    管理者用機能: 新規カテゴリー
+                  </Link>
+                  <button
+                    onClick={logout}
+                    className="block w-full rounded bg-red-500 px-4 py-2 hover:bg-red-600"
+                  >
+                    Logout
+                  </button>
+                </>
               ) : (
                 <Link
                   href="/login"
@@ -74,12 +100,14 @@ const Header: React.FC = () => {
                   編集機能へ
                 </Link>
               ))}
-            <Link
-              href="/about"
-              className="block w-full rounded bg-green-500 px-4 py-2 hover:bg-green-600"
-            >
-              ユーザー登録
-            </Link>
+            {!session && (
+              <Link
+                href="/about"
+                className="block w-full rounded bg-green-500 px-4 py-2 hover:bg-green-600"
+              >
+                ユーザー登録
+              </Link>
+            )}
           </div>
         </div>
       )}

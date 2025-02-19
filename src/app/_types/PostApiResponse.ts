@@ -1,4 +1,5 @@
 export type PostApiResponse = {
+  audioUrl: string;
   id: string;
   title: string;
   content: string;
