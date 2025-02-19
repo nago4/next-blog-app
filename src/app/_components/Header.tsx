@@ -1,16 +1,23 @@
 "use client";
+import { useState } from "react";
 import Link from "next/link";
 import { twMerge } from "tailwind-merge";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFish } from "@fortawesome/free-solid-svg-icons";
+import { faFish, faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { supabase } from "@/utils/supabase"; // ◀ 追加
 import { useAuth } from "@/app/_hooks/useAuth"; // ◀ 追加
 import { useRouter } from "next/navigation"; // ◀ 追加
 
 const Header: React.FC = () => {
   // ▼ 追加
+  const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
   const { isLoading, session } = useAuth();
+
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
+
   const logout = async () => {
     await supabase.auth.signOut();
     router.replace("/");
@@ -27,40 +34,55 @@ const Header: React.FC = () => {
             "text-lg font-bold text-white"
           )}
         >
-          <div>
-            <Link href="/" className="flex items-center gap-x-2">
-              <FontAwesomeIcon icon={faFish} className="mr-1" />
+          <div className="flex items-center gap-x-2">
+            <FontAwesomeIcon icon={faFish} className="mr-1" />
+            AMGMs Blog
+          </div>
+          <div className="flex items-center gap-x-4">
+            <button
+              onClick={toggleMenu}
+              className="rounded bg-gray-700 px-4 py-2 hover:bg-gray-600"
+            >
+              <FontAwesomeIcon icon={menuOpen ? faTimes : faBars} />
+              メニュー
+            </button>
+          </div>
+        </div>
+      </div>
+      {menuOpen && (
+        <div className="bg-slate-700 py-4">
+          <div className="mx-4 max-w-2xl text-white md:mx-auto">
+            <Link
+              href="/"
+              className="block w-full rounded bg-gray-500 px-4 py-2 hover:bg-gray-600"
+            >
               AMGMs Blog
             </Link>
-          </div>
-          <div className="flex gap-x-4">
-            {/* ▼ 追加 */}
             {!isLoading &&
               (session ? (
                 <button
                   onClick={logout}
-                  className="rounded bg-red-500 px-4 py-2 hover:bg-red-600"
+                  className="block w-full rounded bg-red-500 px-4 py-2 hover:bg-red-600"
                 >
                   Logout
                 </button>
               ) : (
                 <Link
                   href="/login"
-                  className="rounded bg-blue-500 px-4 py-2 hover:bg-blue-600"
+                  className="block w-full rounded bg-blue-500 px-4 py-2 hover:bg-blue-600"
                 >
                   編集機能へ
                 </Link>
               ))}
-            {/* ▲ 追加 */}
             <Link
               href="/about"
-              className="rounded bg-green-500 px-4 py-2 hover:bg-green-600"
+              className="block w-full rounded bg-green-500 px-4 py-2 hover:bg-green-600"
             >
               ユーザー登録
             </Link>
           </div>
         </div>
-      </div>
+      )}
     </header>
   );
 };
