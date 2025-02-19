@@ -9,6 +9,7 @@ import Link from "next/link";
 const Page: React.FC = () => {
   const [categories, setCategories] = useState<Category[] | null>(null);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>(""); // 追加
   const router = useRouter(); // 変更
 
   useEffect(() => {
@@ -63,11 +64,23 @@ const Page: React.FC = () => {
     }).format(date);
   };
 
+  const filteredCategories = categories.filter((category) =>
+    category.name.toLowerCase().includes(searchQuery.toLowerCase())
+  ); // 追加
+
   return (
     <main>
       <div className="mb-4 text-2xl font-bold">カテゴリ一覧</div>
+      <input
+        type="text"
+        placeholder="カテゴリを検索"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="mb-4 w-full rounded border p-2"
+      />{" "}
+      {/* 追加 */}
       <div className="space-y-4">
-        {categories.map((category) => (
+        {filteredCategories.map((category) => (
           <div key={category.id} className="rounded-lg border p-4 shadow-sm">
             <div className="text-lg font-semibold">{category.name}</div>
             <div className="text-sm text-gray-500">
