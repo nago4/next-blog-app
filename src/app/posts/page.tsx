@@ -73,7 +73,12 @@ const PostsPage: React.FC = () => {
 
   return (
     <main>
-      <div className="text-2xl font-bold">投稿記事一覧</div>
+      <div className="flex items-center text-2xl font-bold">
+        <span>投稿記事一覧</span>
+        <span className="ml-2 text-lg text-gray-500">
+          ({filteredPosts.length}件)
+        </span>
+      </div>
       <div className="space-y-3">
         {filteredPosts.map((post) => (
           <PostSummary key={post.id} post={post} />
