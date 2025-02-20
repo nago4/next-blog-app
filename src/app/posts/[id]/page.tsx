@@ -11,6 +11,16 @@ import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import type { Post } from "@/app/_types/Post"; // 例: Post 型がこのパスにある場合
 import type { PostApiResponse } from "@/app/_types/PostApiResponse"; // 例: PostApiResponse 型がこのパスにある場合
 
+// 画像を保存する関数
+const saveImage = (imageUrl: string) => {
+  const link = document.createElement("a");
+  link.href = imageUrl;
+  link.download = "cover_image.png";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
 const Page: React.FC = () => {
   const [post, setPost] = useState<Post | null>(null);
   const [relatedPosts, setRelatedPosts] = useState<Post[]>([]);
@@ -137,14 +147,23 @@ const Page: React.FC = () => {
           </div>
         </div>
         {post.coverImage.url && (
-          <Image
-            src={post.coverImage.url}
-            alt="Cover Image"
-            width={post.coverImage.width}
-            height={post.coverImage.height}
-            priority
-            className="mb-4 rounded-xl"
-          />
+          <div>
+            <Image
+              src={post.coverImage.url}
+              alt="Cover Image"
+              width={post.coverImage.width}
+              height={post.coverImage.height}
+              priority
+              className="mb-4 rounded-xl"
+            />
+            <button
+              type="button"
+              onClick={() => saveImage(post.coverImage.url)}
+              className="mt-2 rounded-md bg-green-500 px-3 py-1 text-white"
+            >
+              画像を表示
+            </button>
+          </div>
         )}
         <div
           className="prose prose-lg mb-4 text-gray-700"
