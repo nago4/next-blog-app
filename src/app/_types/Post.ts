@@ -5,7 +5,14 @@ export type Post = {
   id: string;
   title: string;
   content: string;
+  coverImage: {
+    url: string;
+    width: number;
+    height: number;
+  };
   createdAt: string;
-  categories: Category[];
-  coverImage: CoverImage;
+  categories: {
+    id: string;
+    name: string;
+  }[];
 };
