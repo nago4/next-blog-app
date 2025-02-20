@@ -133,9 +133,9 @@ const Page: React.FC = () => {
   return (
     <main className="container mx-auto p-4">
       <div className="mx-auto mb-8 max-w-4xl rounded-lg bg-white p-6 shadow-md">
-        <div className="mb-4 flex items-center">
-          <h1 className="text-3xl font-bold">{post.title}</h1>
-          <div className="ml-4 flex flex-wrap gap-2">
+        <div className="mb-4 text-center">
+          <h1 className="text-4xl font-bold">{post.title}</h1>
+          <div className="mt-2 flex flex-wrap justify-center gap-2">
             {post.categories.map((category) => (
               <span
                 key={category.id}
@@ -147,28 +147,39 @@ const Page: React.FC = () => {
           </div>
         </div>
         {post.coverImage.url && (
-          <div>
-            <Image
-              src={post.coverImage.url}
-              alt="Cover Image"
-              width={post.coverImage.width}
-              height={post.coverImage.height}
-              priority
-              className="mb-4 rounded-xl"
-            />
+          <div className="mb-4 flex justify-center">
+            <div className="rounded-xl border-2 border-gray-300 p-2">
+              <Image
+                src={post.coverImage.url}
+                alt="Cover Image"
+                width={post.coverImage.width}
+                height={post.coverImage.height}
+                priority
+                className="rounded-xl"
+              />
+            </div>
+          </div>
+        )}
+        {post.coverImage.url && (
+          <div className="flex justify-center">
             <button
               type="button"
               onClick={() => saveImage(post.coverImage.url)}
               className="mt-2 rounded-md bg-green-500 px-3 py-1 text-white"
             >
-              画像を表示
+              画像を保存
             </button>
           </div>
         )}
-        <div
-          className="prose prose-lg mb-4 text-gray-700"
-          dangerouslySetInnerHTML={{ __html: safeHTML }}
-        />
+        <div className="prose prose-lg mx-auto mt-4 text-gray-700">
+          <h2 className="text-1xl font-bold">説明</h2>
+          <div className="rounded-lg border-2 border-gray-300 bg-gray-50 p-4">
+            <div
+              className="text-lg leading-relaxed text-gray-900"
+              dangerouslySetInnerHTML={{ __html: safeHTML }}
+            />
+          </div>
+        </div>
       </div>
       <div className="mx-auto max-w-4xl rounded-lg bg-white p-6 text-sm shadow-md">
         <h2 className="mb-4 text-lg font-bold">関連する投稿</h2>
