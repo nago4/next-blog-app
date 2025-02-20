@@ -90,7 +90,7 @@ const Page: React.FC = () => {
                 : "日付不明"}
             </div>
             <button
-              className="mt-2 rounded bg-blue-500 px-4 py-2 text-white"
+              className="mt-2 rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
               onClick={() => handleCategoryClick(category.id)}
             >
               詳細を見る
