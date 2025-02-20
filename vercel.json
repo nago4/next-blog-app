@@ -1,8 +1,0 @@
-{
-  "build": {
-    "env": {
-      "PKG_CONFIG_PATH": "/usr/lib/x86_64-linux-gnu/pkgconfig"
-    },
-    "preBuild": "apt-get update && apt-get install -y libpixman-1-dev libcairo2-dev"
-  }
-}
