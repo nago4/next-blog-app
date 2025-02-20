@@ -10,6 +10,7 @@ import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 const PostsPage: React.FC = () => {
   const [posts, setPosts] = useState<Post[] | null>(null);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const searchParams = useSearchParams();
   const category = searchParams.get("category");
 
@@ -67,8 +68,10 @@ const PostsPage: React.FC = () => {
     );
   }
 
-  const filteredPosts = posts.filter((post) =>
-    post.categories.some((cat) => cat.id === category)
+  const filteredPosts = posts.filter(
+    (post) =>
+      post.categories.some((cat) => cat.id === category) &&
+      (post.title.includes(searchQuery) || post.content.includes(searchQuery))
   );
 
   return (
@@ -78,6 +81,15 @@ const PostsPage: React.FC = () => {
         <span className="ml-2 text-lg text-gray-500">
           ({filteredPosts.length}件)
         </span>
+      </div>
+      <div className="my-4">
+        <input
+          type="text"
+          placeholder="検索..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full rounded-md border-2 px-2 py-1"
+        />
       </div>
       <div className="space-y-3">
         {filteredPosts.map((post) => (
