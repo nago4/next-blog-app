@@ -49,16 +49,24 @@ const mergeImages = async (files: File[]): Promise<File> => {
     })
   );
 
-  const totalWidth = images.reduce((sum, img) => sum + img.width, 0);
-  const maxHeight = Math.max(...images.map((img) => img.height));
+  const maxWidth = Math.max(...images.map((img) => img.width));
+  const totalHeight = images.reduce((sum, img, index) => {
+    return sum + (index % 2 === 0 ? img.height : 0);
+  }, 0);
 
-  canvas.width = totalWidth;
-  canvas.height = maxHeight;
+  canvas.width = maxWidth * 2;
+  canvas.height = totalHeight;
 
   let x = 0;
-  for (const img of images) {
-    ctx.drawImage(img, x, 0);
-    x += img.width;
+  let y = 0;
+  for (let i = 0; i < images.length; i++) {
+    ctx.drawImage(images[i], x, y);
+    if (i % 2 === 1) {
+      x = 0;
+      y += images[i].height;
+    } else {
+      x += images[i].width;
+    }
   }
 
   return new Promise<File>((resolve) => {
