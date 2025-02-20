@@ -31,6 +31,45 @@ const calculateMD5Hash = async (file: File): Promise<string> => {
   return CryptoJS.MD5(wordArray).toString();
 };
 
+// 画像を結合する関数
+const mergeImages = async (files: File[]): Promise<File> => {
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+
+  if (!ctx) throw new Error("Canvas context not available");
+
+  const images = await Promise.all(
+    files.map((file) => {
+      return new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new window.Image();
+        img.src = URL.createObjectURL(file);
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+      });
+    })
+  );
+
+  const totalWidth = images.reduce((sum, img) => sum + img.width, 0);
+  const maxHeight = Math.max(...images.map((img) => img.height));
+
+  canvas.width = totalWidth;
+  canvas.height = maxHeight;
+
+  let x = 0;
+  for (const img of images) {
+    ctx.drawImage(img, x, 0);
+    x += img.width;
+  }
+
+  return new Promise<File>((resolve) => {
+    canvas.toBlob((blob) => {
+      if (blob) {
+        resolve(new File([blob], "merged_image.png", { type: "image/png" }));
+      }
+    });
+  });
+};
+
 // 投稿記事の新規作成のページ
 const Page: React.FC = () => {
   const bucketName = "cover_image";
@@ -126,12 +165,13 @@ const Page: React.FC = () => {
     setCoverImageUrl(undefined);
 
     if (!e.target.files || e.target.files.length === 0) return;
-    const file = e.target.files?.[0];
-    const fileHash = await calculateMD5Hash(file);
+    const files = Array.from(e.target.files);
+    const mergedFile = await mergeImages(files);
+    const fileHash = await calculateMD5Hash(mergedFile);
     const path = `private/${fileHash}`;
     const { data, error } = await supabase.storage
       .from(bucketName)
-      .upload(path, file, { upsert: true });
+      .upload(path, mergedFile, { upsert: true });
 
     if (error || !data) {
       window.alert(`アップロードに失敗 ${error.message}`);
@@ -268,6 +308,7 @@ const Page: React.FC = () => {
             type="file"
             accept="image/*"
             onChange={handleImageChange}
+            multiple // 複数選択を許可
             hidden={true} // 非表示に設定
             ref={hiddenFileInputRef} // 参照を設定
           />
