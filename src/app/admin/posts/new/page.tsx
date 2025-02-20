@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect, useRef, ChangeEvent } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
@@ -8,7 +7,7 @@ import { twMerge } from "tailwind-merge";
 import { useAuth } from "@/app/_hooks/useAuth";
 import { supabase } from "@/utils/supabase";
 import CryptoJS from "crypto-js";
-import html2canvas from "html2canvas";
+import Image from "next/image";
 
 // カテゴリをフェッチしたときのレスポンスのデータ型
 type CategoryApiResponse = {
@@ -30,47 +29,6 @@ const calculateMD5Hash = async (file: File): Promise<string> => {
   const buffer = await file.arrayBuffer();
   const wordArray = CryptoJS.lib.WordArray.create(buffer);
   return CryptoJS.MD5(wordArray).toString();
-};
-
-// 画像を縦に結合する関数
-const mergeImagesVertically = async (files: File[]): Promise<string> => {
-  const images = await Promise.all(
-    files.map((file) => {
-      return new Promise<HTMLImageElement>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-          try {
-            const img = new window.Image() as HTMLImageElement;
-            img.src = e.target?.result as string;
-            img.onload = () => resolve(img);
-            img.onerror = reject;
-          } catch (error) {
-            reject(error);
-          }
-        };
-        reader.readAsDataURL(file);
-      });
-    })
-  );
-
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-
-  const totalHeight = images.reduce((sum, img) => sum + img.height, 0);
-  const maxWidth = Math.max(...images.map((img) => img.width));
-
-  canvas.width = maxWidth;
-  canvas.height = totalHeight;
-
-  let yOffset = 0;
-  images.forEach((img) => {
-    if (ctx) {
-      ctx.drawImage(img, 0, yOffset);
-    }
-    yOffset += img.height;
-  });
-
-  return canvas.toDataURL("image/png");
 };
 
 // 投稿記事の新規作成のページ
@@ -168,17 +126,12 @@ const Page: React.FC = () => {
     setCoverImageUrl(undefined);
 
     if (!e.target.files || e.target.files.length === 0) return;
-    const files = Array.from(e.target.files);
-    const mergedImageDataUrl = await mergeImagesVertically(files);
-    const mergedImageBlob = await (await fetch(mergedImageDataUrl)).blob();
-    const mergedImageFile = new File([mergedImageBlob], "mergedImage.png", {
-      type: "image/png",
-    });
-    const fileHash = await calculateMD5Hash(mergedImageFile);
+    const file = e.target.files?.[0];
+    const fileHash = await calculateMD5Hash(file);
     const path = `private/${fileHash}`;
     const { data, error } = await supabase.storage
       .from(bucketName)
-      .upload(path, mergedImageBlob, { upsert: true });
+      .upload(path, file, { upsert: true });
 
     if (error || !data) {
       window.alert(`アップロードに失敗 ${error.message}`);
@@ -314,7 +267,6 @@ const Page: React.FC = () => {
             id="coverImage"
             type="file"
             accept="image/*"
-            multiple // 複数選択を許可
             onChange={handleImageChange}
             hidden={true} // 非表示に設定
             ref={hiddenFileInputRef} // 参照を設定
