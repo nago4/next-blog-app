@@ -167,7 +167,7 @@ const Page: React.FC = () => {
               onClick={() => saveImage(post.coverImage.url)}
               className="mt-2 rounded-md bg-green-500 px-3 py-1 text-white"
             >
-              画像を保存
+              画像を表示
             </button>
           </div>
         )}
