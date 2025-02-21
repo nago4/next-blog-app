@@ -11,19 +11,19 @@ const Page: React.FC = () => {
         <li>
           <FontAwesomeIcon icon={faArrowRight} className="mr-2" />
           <Link className="text-blue-500 underline" href="/admin/posts">
-            /admin/posts
+            ポストの削除、編集へ
           </Link>
         </li>
         <li>
           <FontAwesomeIcon icon={faArrowRight} className="mr-2" />
           <Link className="text-blue-500 underline" href="/admin/posts/new">
-            /admin/posts/new
+            新規投稿を作る
           </Link>
         </li>
         <li>
           <FontAwesomeIcon icon={faArrowRight} className="mr-2" />
           <Link className="text-blue-500 underline" href="/admin/categories">
-            /admin/categories
+            カテゴリの削除、編集へ
           </Link>
         </li>
         <li>
@@ -32,7 +32,7 @@ const Page: React.FC = () => {
             className="text-blue-500 underline"
             href="/admin/categories/new"
           >
-            /admin/categories/new
+            新規カテゴリを作る
           </Link>
         </li>
       </ul>
